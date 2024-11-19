@@ -4,10 +4,7 @@ pipeline {
             label 'docker-agent-python'
             }
       }
-    environment {
-        ALLURE_RESULTS = 'allure-results'  // Directory for Allure results
-        ALLURE_REPORT = 'allure-report'    // Directory for Allure report
-    }
+   
     stages {
         stage('Install Dependencies') {
             steps {
@@ -21,23 +18,13 @@ pipeline {
             steps {
                 script {
                     // Run the tests and generate Allure results
-                    sh 'pytest --alluredir=allure-results'
+                    sh 'python3 add_product.py'
+                    sh 'python3 update_product.py'
+                    sh 'python3 delete_product.py'
                 }
             }
         }
-        stage('Generate Allure Report') {
-            steps {
-                script {
-                    // Generate Allure report
-                    sh "allure generate ${env.ALLURE_RESULTS} --clean -o ${env.ALLURE_REPORT}"
-                }
-            }
-        }
-        stage('Publish Allure Report') {
-            steps {
-                allure includeProperties: false, jdk: '', results: [[path: "${env.ALLURE_RESULTS}"]]
-            }
-        }
+       
     }
     post {
         always {
