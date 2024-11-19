@@ -1,46 +1,48 @@
 pipeline {
-    agent any // Exécuter sur n'importe quel nœud disponible.
+    agent { 
+        node {
+            label 'docker-agent-python'
+            }
+      }
     environment {
-        ALLURE_RESULTS = 'allure-results' // Chemin vers les résultats Allure
-        ALLURE_REPORT = 'allure-report'   // Chemin vers les rapports générés
+        ALLURE_RESULTS = 'allure-results'  // Directory for Allure results
+        ALLURE_REPORT = 'allure-report'    // Directory for Allure report
     }
     stages {
-       
         stage('Install Dependencies') {
             steps {
-                // Installer un environnement virtuel Python et les dépendances
-                sh 'python3 -m venv venv'
-                sh './venv/bin/pip install -r requirements.txt'
+                script {
+                    // Install dependencies
+                    sh 'pip install -r requirements.txt'
+                }
             }
         }
-        stage('Run Selenium Tests') {
+        stage('Run Tests') {
             steps {
-                // Exécuter les tests Selenium et générer les résultats Allure
-                sh './venv/bin/pytest --alluredir=allure-results'
+                script {
+                    // Run the tests and generate Allure results
+                    sh 'pytest --alluredir=allure-results'
+                }
             }
         }
         stage('Generate Allure Report') {
             steps {
-                // Générer les rapports Allure
-                sh 'allure generate $ALLURE_RESULTS -o $ALLURE_REPORT --clean'
+                script {
+                    // Generate Allure report
+                    sh "allure generate ${env.ALLURE_RESULTS} --clean -o ${env.ALLURE_REPORT}"
+                }
             }
         }
         stage('Publish Allure Report') {
             steps {
-                // Publier les rapports Allure dans Jenkins
-                allure([
-                    results: [[path: "${env.ALLURE_RESULTS}"]],
-                    reportBuildPolicy: 'ALWAYS'
-                ])
+                allure includeProperties: false, jdk: '', results: [[path: "${env.ALLURE_RESULTS}"]]
             }
         }
     }
     post {
-    failure {
-        mail to: 'mouad.fraj@ensi-uma.tn',
-             subject: "Build Failed: ${currentBuild.fullDisplayName}",
-             body: "The build ${env.BUILD_URL} has failed."
+        always {
+            // Clean up the workspace
+            deleteDir()
+        }
     }
-}
-
 }
