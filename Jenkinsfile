@@ -1,42 +1,40 @@
-
 pipeline {
-     agent { 
-        node {
-            label 'docker-agent-python'
-            }
-      }
-
-    triggers {
-        pollSCM '* * * * *'
+    agent {
+        docker {
+            image 'python:3'  // Docker image with Python 3
+            args '-v /tmp:/tmp'  // Optional arguments to mount volumes, if needed
+        }
     }
+
+    environment {
+        PYTHON = '/usr/local/bin/python'  // Path to Python in the container
+    }
+
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                echo "Building.."
+                checkout scm
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
                 sh '''
-                python3 -m venv venv
-                source venv/bin/activate
-                pip install -r requirements.txt
-                deactivate
+                    ${PYTHON} -m pip install -r requirements.txt
                 '''
             }
         }
         stage('Test') {
             steps {
-                echo "Testing.."
-                sh 'source ../venv/bin/activate'
-                sh 'python3 add_product.py'
-                sh 'python3 update_product.py'
-                sh 'python3 delete_product.py'
-                sh 'deactivate'
-                
+                sh '''
+                    ${PYTHON} -m add_product.py --alluredir=allure-results
+                '''
             }
         }
-        stage('Deliver') {
+        stage('Generate Allure Report') {
             steps {
-                echo 'Deliver....'
                 sh '''
-                echo "doing delivery stuff.."
+                    allure generate allure-results --clean -o allure-report
+                    allure open allure-report
                 '''
             }
         }
