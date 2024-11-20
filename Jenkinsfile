@@ -23,7 +23,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                    python3 -m add_product.py --alluredir=allure-results
+                    python3 -m pytest add_product.py --alluredir=allure-results
                 '''
             }
         }
