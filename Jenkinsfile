@@ -13,9 +13,18 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Setup Environment') {
+            steps {
+                sh '''
+                    sudo apt update
+                    sudo apt install -y google-chrome-stable
+                    export PATH=$PATH:/home/jenkins/.local/bin
+                '''
+            }}
         stage('Install Dependencies') {
             steps {
                 sh '''
+                    export PATH=$PATH:/home/jenkins/.local/bin
                     python3 -m pip install -r requirements.txt
                 '''
             }
@@ -23,6 +32,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
+                    export PATH=$PATH:/home/jenkins/.local/bin
                     python3 -m pytest add_product.py --alluredir=allure-results
                 '''
             }
