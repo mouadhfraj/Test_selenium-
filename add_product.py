@@ -6,11 +6,17 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import allure
+from selenium.webdriver.chrome.options import Options
+
 
 @allure.feature('Magento Admin Panel')
 @allure.story('Login and Add Product')
 def test_add_product():
     # Set up chromedriver using webdriver_manager
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     driver.maximize_window()
 
