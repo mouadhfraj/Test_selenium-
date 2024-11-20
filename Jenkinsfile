@@ -1,10 +1,10 @@
 pipeline {
     agent {
-        docker {
-            image 'python:3'  // Docker image with Python 3
-            args '-v /tmp:/tmp'  // Optional arguments to mount volumes, if needed
-        }
+    docker {
+        image 'python:3'
+        args '-v /var/run/docker.sock:/var/run/docker.sock'
     }
+}
 
     environment {
         PYTHON = '/usr/local/bin/python'  // Path to Python in the container
