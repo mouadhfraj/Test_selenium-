@@ -16,14 +16,14 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    python -m pip install -r requirements.txt
+                    python3 -m pip install -r requirements.txt
                 '''
             }
         }
         stage('Test') {
             steps {
                 sh '''
-                    python -m add_product.py --alluredir=allure-results
+                    python3 -m add_product.py --alluredir=allure-results
                 '''
             }
         }
