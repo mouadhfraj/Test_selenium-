@@ -16,9 +16,15 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 sh '''
-                    apt update
-                    apt install -y google-chrome-stable
-                    export PATH=$PATH:/home/jenkins/.local/bin
+                    
+                     if command -v apt >/dev/null; then
+                        apt update && apt install -y google-chrome-stable
+                    elif command -v apk >/dev/null; then
+                        apk update && apk add chromium
+                    else
+                        echo "Package manager not found!" >&2
+                        exit 1
+                    fi
                 '''
             }}
         stage('Install Dependencies') {
