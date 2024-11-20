@@ -1,14 +1,11 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3'  // Docker image with Python 3
-            args '-v /tmp:/tmp'  // Optional arguments to mount volumes, if needed
-        }
-    }
+    agent { 
+        node {
+            label 'docker-agent-python'
+            }
+      }
 
-    environment {
-        PYTHON = '/usr/local/bin/python'  // Path to Python in the container
-    }
+    
 
     stages {
         
