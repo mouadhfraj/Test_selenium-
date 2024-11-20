@@ -1,37 +1,21 @@
 pipeline {
-    agent {
-    docker {
-        image 'python:3'
-        args '-v /var/run/docker.sock:/var/run/docker.sock'
-    }
-}
-
-    environment {
-        PYTHON = '/usr/local/bin/python'  // Path to Python in the container
-    }
-
+    agent any
     stages {
-        
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    ${PYTHON} -m pip install -r requirements.txt
-                '''
+                sh 'docker pull python:3'
+                sh 'docker run python:3 --version'
             }
         }
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                sh '''
-                    ${PYTHON} -m add_product.py --alluredir=allure-results
-                '''
-            }
-        }
-        stage('Generate Allure Report') {
-            steps {
-                sh '''
-                    allure generate allure-results --clean -o allure-report
-                    allure open allure-report
-                '''
+                sh 'docker run python:3 python -m pip install -r requirements.txt'
+                sh 'docker run python:3 python -m add_product.py --alluredir=allure-results'
             }
         }
     }
