@@ -16,8 +16,8 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 sh '''
-                    sudo apt update
-                    sudo apt install -y google-chrome-stable
+                    apt update
+                    apt install -y google-chrome-stable
                     export PATH=$PATH:/home/jenkins/.local/bin
                 '''
             }}
