@@ -1,5 +1,12 @@
 pipeline {
-    agent any
+     agent { 
+        node {
+            label 'docker-agent-python'
+            }
+      }
+    triggers {
+        pollSCM '* * * * *'
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -8,14 +15,24 @@ pipeline {
         }
         stage('Install Dependencies') {
             steps {
-                sh 'docker pull python:3'
-                sh 'docker run python:3 --version'
+                sh '''
+                    ${PYTHON} -m pip install -r requirements.txt
+                '''
             }
         }
-        stage('Run Tests') {
+        stage('Test') {
             steps {
-                sh 'docker run python:3 python -m pip install -r requirements.txt'
-                sh 'docker run python:3 python -m add_product.py --alluredir=allure-results'
+                sh '''
+                    ${PYTHON} -m add_product.py --alluredir=allure-results
+                '''
+            }
+        }
+        stage('Generate Allure Report') {
+            steps {
+                sh '''
+                    allure generate allure-results --clean -o allure-report
+                    allure open allure-report
+                '''
             }
         }
     }
