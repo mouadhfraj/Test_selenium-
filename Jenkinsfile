@@ -21,8 +21,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Testing.."
-                sh '
-                cd myapp'
+                sh 'cd myapp'
                 sh 'python3 add_product.py'
                 sh 'python3 update_product.py'
                 sh 'python3 delete_product.py'
